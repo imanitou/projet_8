@@ -1,20 +1,34 @@
-from fastapi import FastAPI, HTTPException
-import mlflow
-import mlflow.sklearn
-import pandas as pd
-import logging
-import os
-from google.cloud import storage
-import tempfile
-from dotenv import load_dotenv
-import shap
-import numpy as np
 import streamlit as st
+import pandas as pd
+import numpy as np
+import mlflow
+import shap
+import matplotlib.pyplot as plt
+import logging
 
-# load_dotenv('.env')
-
-# Configurer la journalisation
+# Configuration du logging
 logging.basicConfig(level=logging.INFO)
+
+# Fonction pour charger le modèle MLflow
+@st.cache_resource
+def load_mlflow_model():
+    try:
+        model_path = "mlflow_model"
+        model = mlflow.pyfunc.load_model(model_path)
+        return model
+    except Exception as e:
+        st.error(f"Erreur lors du chargement du modèle MLflow: {e}")
+        return None
+
+# Fonction pour charger les données des clients
+@st.cache_data
+def load_client_data():
+    try:
+        clients_df = pd.read_csv('app_train_with_feature_selection_subset.csv')
+        return clients_df
+    except Exception as e:
+        st.error(f"Erreur lors du chargement des données des clients : {e}")
+        return None
 
 # Fonction pour formater les nombres
 def format_number(x):
@@ -24,30 +38,6 @@ def format_number(x):
         return f"{x/1e3:.2f}K"
     else:
         return f"{x:.2f}"
-    
-# Charger le modèle sauvegardé
-model_path = "./mlflow_model_"
-model = mlflow.sklearn.load_model(model_path)
-
-try:
-    model = mlflow.sklearn.load_model(model_path)
-    logging.info("Modèle chargé avec succès.")
-except Exception as e:
-    logging.error(f"Erreur lors du chargement du modèle: {e}")
-    raise HTTPException(status_code=500, detail="Erreur lors du chargement du modèle")
-
-model_ = model.named_steps['classifier']
-
-# Charger les données des clients
-data_path = 'https://raw.githubusercontent.com/imanitou/projet_8/main/app_train_with_feature_selection_subset.csv'
-try:
-    #clients_df = pd.read_csv(data_path)
-    clients_df = pd.read_csv("app_train_with_feature_selection_subset.csv")
-    logging.info("Données des clients chargées avec succès.")
-    logging.info(f"En-tête du DataFrame des clients :\n{clients_df.head()}")
-except Exception as e:
-    logging.error(f"Erreur lors du chargement des données des clients : {e}")
-    raise HTTPException(status_code=500, detail="Erreur lors du chargement des données des clients")
 
 # Fonction pour obtenir les informations du client
 def get_client_info(client_id, clients_df):
@@ -92,8 +82,8 @@ def predict(client_id: int, model, clients_df):
         return None
 
 # Charger le modèle et les données
-# model = load_mlflow_model()
-# clients_df = load_client_data()
+model = load_mlflow_model()
+clients_df = load_client_data()
 
 # Interface Streamlit
 st.title("Prédiction de crédit")
