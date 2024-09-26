@@ -91,31 +91,26 @@ def predict(client_id: int):
         logging.error(f"Erreur lors de la prédiction : {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
-# Interface Streamlit
-st.title("Prédiction de crédit")
-
-client_id = st.number_input("Entrez l'ID du client", min_value=1, step=1)
+# Entrée pour l'ID du client
+client_id = st.number_input("Entrez le SK_ID_CURR du client :", min_value=int(clients_df['SK_ID_CURR'].min()), max_value=int(clients_df['SK_ID_CURR'].max()))
 
 # Fonction pour obtenir les informations d'un client
 def get_client_info(client_id):
     client_info = clients_df[clients_df['SK_ID_CURR'] == client_id]
     return client_info
 
-if st.button("Prédire"):
-    if model is not None and clients_df is not None:
-        client_info = get_client_info(client_id, clients_df)
-        if client_info.empty:
-            st.warning(f"Client ID {client_id} non trouvé.")
-        else:
-            # Afficher les informations du client
-            st.write("Informations concernant le client :")
-            formatted_info = client_info.applymap(lambda x: format_number(x) if isinstance(x, (int, float)) else x)
-            st.dataframe(formatted_info)
-            
-            # Faire la prédiction
-            result = predict(client_id, model, clients_df)
-            
-            if result:
+# Afficher les informations du client
+if client_id:
+    client_info = get_client_info(client_id)
+    if not client_info.empty:
+        st.write("Informations concernant le client :")
+        # formatted_info = client_info.applymap(lambda x: f"{x:,.2f}" if isinstance(x, (int, float)) else x)
+        formatted_info = client_info.applymap(lambda x: format_number(x) if isinstance(x, (int, float)) else x)
+        st.dataframe(formatted_info)
+        
+        # Envoyer la requête à l'API pour obtenir la prédiction
+        result = predict(client_id, model, clients_df)
+        if result:
                 prediction = result['prediction'][0]
                 score = result['score'][0]
                 shap_values = result['shap_values']
@@ -127,3 +122,5 @@ if st.button("Prédire"):
                 else:
                     st.write("**Prédiction : ATTENTION ! Le client risque de ne pas rembourser son crédit.**")
                 st.write(f"Probabilité de faire défaut : {score:.2f}")
+            
+
