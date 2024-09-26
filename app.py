@@ -16,7 +16,15 @@ import streamlit as st
 # Configurer la journalisation
 logging.basicConfig(level=logging.INFO)
 
-
+# Fonction pour formater les nombres
+def format_number(x):
+    if abs(x) >= 1e6:
+        return f"{x/1e6:.2f}M"
+    elif abs(x) >= 1e3:
+        return f"{x/1e3:.2f}K"
+    else:
+        return f"{x:.2f}"
+    
 # Charger le modèle sauvegardé
 model_path = "./mlflow_model_"
 model = mlflow.sklearn.load_model(model_path)
@@ -84,8 +92,8 @@ def predict(client_id: int, model, clients_df):
         return None
 
 # Charger le modèle et les données
-model = load_mlflow_model()
-clients_df = load_client_data()
+# model = load_mlflow_model()
+# clients_df = load_client_data()
 
 # Interface Streamlit
 st.title("Prédiction de crédit")
