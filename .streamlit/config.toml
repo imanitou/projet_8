@@ -1,0 +1,6 @@
+[theme]
+base="light"
+primaryColor="#1E2D2F"  # Couleur principale
+backgroundColor="#BDB1A2"  # Couleur d'arrière-plan 
+secondaryBackgroundColor="#897267"  # Couleur d'arrière-plan des widgets
+textColor="#000000"  # Couleur du texte
