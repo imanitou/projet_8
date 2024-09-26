@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 @st.cache_resource
 def load_mlflow_model():
     try:
-        model_path = "mlflow_model"
+        model_path = "mlflow_model_"
         model = mlflow.pyfunc.load_model(model_path)
         return model
     except Exception as e:
