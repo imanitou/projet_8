@@ -52,6 +52,9 @@ except Exception as e:
 
 def predict(client_id: int):
     try:
+        # Utiliser les variables globales `model` et `clients_df`
+        global model, clients_df
+
         # Rechercher le client par ID
         logging.info(f"Recherche du client ID {client_id}")
         client_data = clients_df[clients_df['SK_ID_CURR'] == client_id]
@@ -109,7 +112,7 @@ if client_id:
         st.dataframe(formatted_info)
         
         # Envoyer la requête à l'API pour obtenir la prédiction
-        result = predict(client_id, model, clients_df)
+        result = predict(client_id)
         if result:
                 prediction = result['prediction'][0]
                 score = result['score'][0]
