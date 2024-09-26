@@ -23,7 +23,7 @@ def format_number(number):
         return number
     
 # Charger le modèle sauvegardé
-model_path = "C:/Users/guill/Imane/P7/mlflow_model_"
+model_path = "./mlflow_model_"
 model = mlflow.sklearn.load_model(model_path)
 
 try:
@@ -36,7 +36,7 @@ except Exception as e:
 model_ = model.named_steps['classifier']
 
 # Charger les données des clients
-data_path = 'https://raw.githubusercontent.com/imanitou/P7/main/app_train_with_feature_selection_subset.csv'
+data_path = './app_train_with_feature_selection_subset.csv'
 try:
     #clients_df = pd.read_csv(data_path)
     clients_df = pd.read_csv("app_train_with_feature_selection_subset.csv")
